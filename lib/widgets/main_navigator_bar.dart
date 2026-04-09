@@ -7,13 +7,13 @@ Widget MainNavigationBar(BuildContext context){
     onTap: (index) {
       switch (index) {
         case 0:
-          Navigator.pushNamed(context, '/tickets');
+          Navigator.pushReplacementNamed(context, '/tickets');
           break;
         case 1:
-          Navigator.pushNamed(context, '/my_rides');
+          Navigator.pushReplacementNamed(context, '/my_rides');
           break;
         case 2:
-          Navigator.pushNamed(context, '/profile');
+          Navigator.pushReplacementNamed(context, '/profile');
           break;
       }
     },
