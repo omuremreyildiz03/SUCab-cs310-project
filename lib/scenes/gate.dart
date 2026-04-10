@@ -19,7 +19,28 @@ class _GateScreenState extends State<GateScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text("This is Gate"),
-          ElevatedButton(onPressed: () {Navigator.pushReplacementNamed(context, '/tickets');}, child: Icon(Icons.home))
+          SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/sign_in'),
+                icon: Icon(Icons.person_add),
+                label: Text("Sign in"),
+              ),
+            ],
+          ),
+          SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/login'),
+                icon: Icon(Icons.login),
+                label: Text("Login"),
+              ),
+            ],
+          )
         ],
       ),
     );
