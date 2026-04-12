@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:sucab/scenes/login.dart';
-import 'package:sucab/scenes/sign_up.dart';
+import 'scenes/login.dart';
+import 'scenes/sign_up.dart';
 import 'scenes/tickets.dart';
 import 'scenes/my_rides.dart';
 import 'scenes/profile.dart';
 import 'scenes/notification.dart';
 import 'scenes/created_rides.dart';
 import 'scenes/joined_rides.dart';
+import 'scenes/gate.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +22,8 @@ class MyApp extends StatelessWidget {
       title: 'SUCab',
       initialRoute: '/gate',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/tickets',
       routes: {
+        '/gate': (context) => const GateScreen(),
         '/tickets': (context) => const TicketsScreen(),
         '/my_rides': (context) => const MyRidesScreen(),
         '/created_rides': (context) => const CreatedRidesScreen(),
