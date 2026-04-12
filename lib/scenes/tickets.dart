@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sucab/models/ride.dart';
 import 'package:sucab/widgets/main_navigation_bar.dart';
 import 'package:sucab/widgets/notification_button.dart';
 
@@ -239,21 +240,13 @@ class _TicketsScreenState extends State<TicketsScreen> {
           _SegmentButton(
             label: 'Active',
             selected: !_showOldTickets,
-            onTap: () {
-              setState(() {
-                _showOldTickets = false;
-              });
-            },
+            onTap: () => setState(() => _showOldTickets = false),
           ),
           const SizedBox(width: 8),
           _SegmentButton(
             label: 'Old',
             selected: _showOldTickets,
-            onTap: () {
-              setState(() {
-                _showOldTickets = true;
-              });
-            },
+            onTap: () => setState(() => _showOldTickets = true),
           ),
         ],
       ),
@@ -362,130 +355,149 @@ class _ActiveTicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.72),
-        borderRadius: BorderRadius.circular(24),
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/ticket_detail',
+        arguments: Ride(
+          title: '${ticket.origin} → ${ticket.destination}',
+          from: ticket.origin,
+          to: ticket.destination,
+          date: 'Today',
+          time: ticket.departureTime,
+          availableSeats: ticket.seatsTotal - ticket.seatsFilled,
+          driverName: 'Unknown',
+          joinedUsers: const [],
+          status: 'Active',
+          ticketId: '#SC-0000',
+        ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 74,
-            decoration: BoxDecoration(
-              color: ticket.accentColor,
-              borderRadius: BorderRadius.circular(6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.72),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 74,
+              decoration: BoxDecoration(
+                color: ticket.accentColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: ticket.accentColor.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(14),
+            Expanded(
+              child: Padding(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: ticket.accentColor.withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        Icons.local_taxi_outlined,
+                        color: ticket.accentColor,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.local_taxi_outlined,
-                      color: ticket.accentColor,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${ticket.origin} -> ${ticket.destination}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _TicketsScreenState._cardTextColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${ticket.origin} -> ${ticket.destination}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _TicketsScreenState._cardTextColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${ticket.departureTime} . ${ticket.duration}',
-                          style: const TextStyle(
-                            color: Color(0xFF8E93A5),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(height: 4),
+                          Text(
+                            '${ticket.departureTime} . ${ticket.duration}',
+                            style: const TextStyle(
+                              color: Color(0xFF8E93A5),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: List.generate(
-                            ticket.seatsTotal,
-                            (index) => Container(
-                              width: 10,
-                              height: 10,
-                              margin: const EdgeInsets.only(right: 4),
-                              decoration: BoxDecoration(
-                                color: index < ticket.progressCount
-                                    ? ticket.accentColor
-                                    : const Color(0xFFD7D9E2),
-                                borderRadius: BorderRadius.circular(3),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: List.generate(
+                              ticket.seatsTotal,
+                                  (index) => Container(
+                                width: 10,
+                                height: 10,
+                                margin: const EdgeInsets.only(right: 4),
+                                decoration: BoxDecoration(
+                                  color: index < ticket.progressCount
+                                      ? ticket.accentColor
+                                      : const Color(0xFFD7D9E2),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
                               ),
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: ticket.accentColor.withOpacity(0.14),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.person_outline,
+                                size: 15,
+                                color: ticket.accentColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${ticket.seatsFilled}/${ticket.seatsTotal}',
+                                style: TextStyle(
+                                  color: ticket.accentColor,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: ticket.accentColor,
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: ticket.accentColor.withOpacity(0.14),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.person_outline,
-                              size: 15,
-                              color: ticket.accentColor,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${ticket.seatsFilled}/${ticket.seatsTotal}',
-                              style: TextStyle(
-                                color: ticket.accentColor,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: ticket.accentColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -517,7 +529,8 @@ class _PastTicketCard extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               child: Row(
                 children: [
                   Container(
@@ -560,7 +573,7 @@ class _PastTicketCard extends StatelessWidget {
                         Row(
                           children: List.generate(
                             ticket.seatsTotal,
-                            (index) => Container(
+                                (index) => Container(
                               width: 10,
                               height: 10,
                               margin: const EdgeInsets.only(right: 4),
@@ -613,7 +626,7 @@ class _PastTicketCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: List.generate(
                           5,
-                          (index) => Icon(
+                              (index) => Icon(
                             Icons.star_rounded,
                             size: 14,
                             color: index < ticket.rating
@@ -677,36 +690,11 @@ class _HeaderDecoration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        _CircleGlow(
-          top: -20,
-          left: -14,
-          size: 92,
-          opacity: 0.08,
-        ),
-        _CircleGlow(
-          top: 8,
-          left: 116,
-          size: 92,
-          opacity: 0.05,
-        ),
-        _CircleGlow(
-          top: -24,
-          right: 30,
-          size: 110,
-          opacity: 0.08,
-        ),
-        _CircleGlow(
-          top: 52,
-          right: -24,
-          size: 136,
-          opacity: 0.06,
-        ),
-        _CircleGlow(
-          top: 64,
-          left: 210,
-          size: 70,
-          opacity: 0.04,
-        ),
+        _CircleGlow(top: -20, left: -14, size: 92, opacity: 0.08),
+        _CircleGlow(top: 8, left: 116, size: 92, opacity: 0.05),
+        _CircleGlow(top: -24, right: 30, size: 110, opacity: 0.08),
+        _CircleGlow(top: 52, right: -24, size: 136, opacity: 0.06),
+        _CircleGlow(top: 64, left: 210, size: 70, opacity: 0.04),
       ],
     );
   }
