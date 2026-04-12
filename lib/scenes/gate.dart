@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sucab/data/mock_rides.dart';
 
 class GateScreen extends StatefulWidget {
   const GateScreen({super.key});
@@ -45,22 +44,7 @@ class _GateScreenState extends State<GateScreen> {
                 label: Text("Login"),
               ),
             ],
-          ),
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () => Navigator.pushNamed(
-                  context,
-                  '/ticket_detail',
-                  arguments: createdRides[0],
-                ),
-                icon: Icon(Icons.confirmation_number),
-                label: Text("Test Ticket Detail"),
-              ),
-            ],
-          ),
+          )
         ],
       ),
     );
