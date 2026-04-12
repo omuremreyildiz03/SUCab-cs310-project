@@ -12,14 +12,39 @@ class _GateScreenState extends State<GateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Gate"),
-      ),
+      backgroundColor: Color.fromARGB(100, 100, 100, 200),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("This is Gate"),
-          ElevatedButton(onPressed: () {Navigator.pushReplacementNamed(context, '/tickets');}, child: Icon(Icons.home))
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16)
+            ),
+            child: Text("SuCab", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          ),
+          SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/sign_up'),
+                icon: Icon(Icons.person_add),
+                label: Text("Sign up"),
+              ),
+            ],
+          ),
+          SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/login'),
+                icon: Icon(Icons.login),
+                label: Text("Login"),
+              ),
+            ],
+          )
         ],
       ),
     );
