@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'SUCab',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/tickets',
+      initialRoute: '/login',
       routes: {
         '/tickets': (context) => const TicketsScreen(),
         '/my_rides': (context) => const MyRidesScreen(),
