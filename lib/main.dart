@@ -39,8 +39,8 @@ class MyApp extends StatelessWidget {
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/other_profile') {
-          final user = settings.arguments as User?;
-          if (user != null) {
+          if (settings.arguments is User) {
+            final user = settings.arguments as User;
             return MaterialPageRoute(
               builder: (context) => OtherProfileScreen(user: user),
             );

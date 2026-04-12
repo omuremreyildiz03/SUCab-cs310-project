@@ -6,7 +6,18 @@ class TicketDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ride = ModalRoute.of(context)!.settings.arguments as Ride;
+    final arguments = ModalRoute.of(context)!.settings.arguments;
+    if (arguments is! Ride) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Error'),
+        ),
+        body: const Center(
+          child: Text('Invalid ride data'),
+        ),
+      );
+    }
+    final ride = arguments;
 
     return Scaffold(
       appBar: AppBar(
