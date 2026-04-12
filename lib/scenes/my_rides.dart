@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sucab/data/mock_rides.dart' as mockData;
+import 'package:sucab/models/ride.dart';
 import 'package:sucab/widgets/main_navigation_bar.dart';
 
 class MyRidesScreen extends StatefulWidget {
@@ -11,39 +13,10 @@ class MyRidesScreen extends StatefulWidget {
 class _MyRidesScreenState extends State<MyRidesScreen> {
   bool isJoinedSelected = true;
 
-  // 🔹 MOCK DATA
-  final List<Map<String, dynamic>> joinedRides = [
-    {
-      "route": "Kadıköy → Sabiha Gökçen",
-      "time": "Today • 2:30 PM",
-      "seats": "1/4",
-      "color": Colors.green,
-    },
-    {
-      "route": "Campus → Sabiha Gökçen",
-      "time": "Today • 3:00 PM",
-      "seats": "3/4",
-      "color": Colors.orange,
-    },
-  ];
-
-  final List<Map<String, dynamic>> createdRides = [
-    {
-      "route": "Campus → Kadıköy",
-      "time": "Today • 1:00 PM",
-      "seats": "1/4",
-      "color": Colors.green,
-    },
-    {
-      "route": "Taksim → Kadıköy",
-      "time": "Today • 5:00 PM",
-      "seats": "3/4",
-      "color": Colors.orange,
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final rides = isJoinedSelected ? mockData.joinedRides : mockData.createdRides;
+
     return Scaffold(
       body: Column(
         children: [
@@ -73,32 +46,22 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   style: TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 14),
-
-                // TOGGLE
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildToggleButton(
                       text: "Joined",
                       active: isJoinedSelected,
-                      onTap: () {
-                        setState(() {
-                          isJoinedSelected = true;
-                        });
-                      },
+                      onTap: () => setState(() => isJoinedSelected = true),
                     ),
                     const SizedBox(width: 10),
                     _buildToggleButton(
                       text: "Created",
                       active: !isJoinedSelected,
-                      onTap: () {
-                        setState(() {
-                          isJoinedSelected = false;
-                        });
-                      },
+                      onTap: () => setState(() => isJoinedSelected = false),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -107,13 +70,35 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF5F6FA),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(25),
-                ),
+              color: const Color(0xFFF5F6FA),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "ACTIVE",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: rides.isEmpty
+                        ? Center(
+                      child: Text(
+                        isJoinedSelected
+                            ? "You haven't joined any rides yet."
+                            : "You haven't created any rides yet.",
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    )
+                        : ListView.builder(
+                      itemCount: rides.length,
+                      itemBuilder: (context, index) {
+                        final ride = rides[index];
+                        return _RideCard(ride: ride);
+                      },
+                    ),
+                  ),
+                ],
               ),
-              child: _buildContent(),
             ),
           ),
         ],
@@ -122,46 +107,6 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
         context,
         currentIndex: 1,
       ),
-    );
-  }
-
-  // CONTENT BUILDER
-  Widget _buildContent() {
-    final rides = isJoinedSelected ? joinedRides : createdRides;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "ACTIVE",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-        ),
-        const SizedBox(height: 12),
-
-        Expanded(
-          child: rides.isEmpty
-              ? Center(
-                  child: Text(
-                    isJoinedSelected
-                        ? "You haven't joined any rides yet."
-                        : "You haven't created any rides yet.",
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: rides.length,
-                  itemBuilder: (context, index) {
-                    final ride = rides[index];
-                    return RideCard(
-                      route: ride["route"],
-                      time: ride["time"],
-                      seats: ride["seats"],
-                      color: ride["color"],
-                    );
-                  },
-                ),
-        ),
-      ],
     );
   }
 }
@@ -192,70 +137,78 @@ Widget _buildToggleButton({
 }
 
 // RIDE CARD
-class RideCard extends StatelessWidget {
-  final String route;
-  final String time;
-  final String seats;
-  final Color color;
+class _RideCard extends StatelessWidget {
+  final Ride ride;
 
-  const RideCard({
-    super.key,
-    required this.route,
-    required this.time,
-    required this.seats,
-    required this.color,
-  });
+  const _RideCard({required this.ride});
+
+  Color _getStatusColor() {
+    switch (ride.availableSeats) {
+      case 3: return Colors.green;
+      case 2: return Colors.blue;
+      case 1: return Colors.orange;
+      case 0: return Colors.red;
+      default: return Colors.green;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final color = _getStatusColor();
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withOpacity(0.2),
-              child: Icon(Icons.directions_car, color: color),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    route,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    time,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: () => Navigator.pushNamed(
+          context,
+          '/ticket_detail',
+          arguments: ride,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: color.withOpacity(0.2),
+                child: Icon(Icons.directions_car, color: color),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 5,
-              ),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                seats,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${ride.from} → ${ride.to}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${ride.date} • ${ride.time}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${4 - ride.availableSeats}/4',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
