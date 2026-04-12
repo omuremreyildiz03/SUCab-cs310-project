@@ -10,6 +10,7 @@ import 'scenes/joined_rides.dart';
 import 'scenes/gate.dart';
 import 'scenes/ticket_detail.dart';
 import 'scenes/new_ticket.dart';
+import 'scenes/other_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +36,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/sign_up': (context) => const SignUpScreen(),
         '/ticket_detail': (context) => const TicketDetailScreen(),
-        '/new_ticket': (context) => const NewTicketScreen()
+        '/new_ticket': (context) => const NewTicketScreen(),
+        '/other_profile': (context) => const OtherProfileScreen()
       },
     );
   }
