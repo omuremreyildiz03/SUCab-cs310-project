@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                         Navigator.pushNamedAndRemoveUntil(
                           context,
-                          '/profile',
+                          '/tickets',
                               (route) => false,
                         );
                       }
