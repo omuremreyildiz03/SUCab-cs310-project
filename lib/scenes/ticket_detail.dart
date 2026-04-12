@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sucab/models/ride.dart';
-import 'package:sucab/widgets/main_navigation_bar.dart';
 
 class TicketDetailScreen extends StatelessWidget {
   const TicketDetailScreen({super.key});
@@ -22,10 +21,6 @@ class TicketDetailScreen extends StatelessWidget {
             _buildCompanions(ride),
           ],
         ),
-      ),
-      bottomNavigationBar: MainNavigationBar(
-        context,
-        currentIndex: 0,
       ),
     );
   }
