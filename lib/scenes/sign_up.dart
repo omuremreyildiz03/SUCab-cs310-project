@@ -42,6 +42,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   decoration: InputDecoration(
                       hintText: "Enter SU-id name: ",
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                       suffix: IconButton(
                           onPressed: () {
                             _nameController.clear();
@@ -63,6 +65,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   decoration: InputDecoration(
                       hintText: "Enter Su-id password: ",
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                       suffix: IconButton(
                           onPressed: () {
                             _passwordController.clear();
@@ -98,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         );
                       }
                     },
-                    child: Text("Sign in")
+                    child: Text("Sign up")
                 ),
               ],
             )
