@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sucab/Widgets/main_navigation_bar.dart';
-import 'package:sucab/Widgets/notification_button.dart';
+import 'package:sucab/widgets/main_navigation_bar.dart';
+import 'package:sucab/widgets/notification_button.dart';
 
 class TicketsScreen extends StatefulWidget {
   const TicketsScreen({super.key});
@@ -10,21 +10,22 @@ class TicketsScreen extends StatefulWidget {
 }
 
 class _TicketsScreenState extends State<TicketsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tickets"),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("This is tickets"),
+        title: const Text("Tickets"),
+        actions: [
           NotificationButton(context),
         ],
       ),
-      bottomNavigationBar: MainNavigationBar(context)
+      body: const Center(
+        child: Text("This is tickets"),
+      ),
+      bottomNavigationBar: MainNavigationBar(
+        context,
+        currentIndex: 0,
+      ),
     );
   }
 }
