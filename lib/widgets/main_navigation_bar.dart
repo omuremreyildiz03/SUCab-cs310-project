@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-Widget MainNavigationBar(BuildContext context){
-
+Widget MainNavigationBar(
+  BuildContext context, {
+  required int currentIndex,
+}) {
   return BottomNavigationBar(
-    currentIndex: 0,
+    currentIndex: currentIndex,
     onTap: (index) {
       switch (index) {
         case 0:
@@ -17,7 +19,7 @@ Widget MainNavigationBar(BuildContext context){
           break;
       }
     },
-    items: [
+    items: const [
       BottomNavigationBarItem(
         icon: Icon(Icons.airplane_ticket),
         label: 'Tickets',
@@ -31,6 +33,5 @@ Widget MainNavigationBar(BuildContext context){
         label: 'Profile',
       ),
     ],
-
   );
 }
