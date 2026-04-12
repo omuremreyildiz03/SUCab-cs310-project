@@ -156,11 +156,11 @@ class _TicketsScreenState extends State<TicketsScreen> {
       floatingActionButton: _showOldTickets
           ? null
           : FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, '/new_ticket'),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add, size: 30),
-      ),
+              onPressed: () {},
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add, size: 30),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
