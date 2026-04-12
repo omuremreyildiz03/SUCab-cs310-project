@@ -114,36 +114,6 @@ class _JoinedRideCard extends StatelessWidget {
                     style: const TextStyle(color: Colors.grey)),
               ],
             ),
-            const Divider(height: 20),
-            // Driver row — tappable
-            Row(
-              children: [
-                const Icon(Icons.drive_eta, size: 16, color: Color(0xFF1E2A44)),
-                const SizedBox(width: 6),
-                const Text('Driver: ',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 13)),
-                GestureDetector(
-                  onTap: () => _openDriverProfile(context, ride.driverName),
-                  child: Row(
-                    children: [
-                      Text(
-                        ride.driverName,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF1E2A44),
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                      const SizedBox(width: 3),
-                      const Icon(Icons.open_in_new,
-                          size: 13, color: Color(0xFF1E2A44)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 12),
             // Actions
             Row(
@@ -184,34 +154,12 @@ class _JoinedRideCard extends StatelessWidget {
     );
   }
 
-  void _openDriverProfile(BuildContext context, String driverName) {
-    UserProfile user;
-    try {
-      user = otherUsers.firstWhere((u) => u.name == driverName);
-    } catch (_) {
-      user = UserProfile(
-        name: driverName,
-        suId: '${driverName.toLowerCase()}@sabanciuniv.edu',
-        faculty: 'Sabanci University',
-        year: 'Unknown',
-        rating: 0.0,
-        totalRides: 0,
-        createdRides: 0,
-        joinedRides: 0,
-        bio: '',
-        avatarInitials: driverName[0],
-      );
-    }
-    Navigator.pushNamed(context, '/other_profile', arguments: user);
-  }
-
   void _confirmLeave(BuildContext context, Ride ride) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Leave Ride'),
-        content: Text(
-            'Are you sure you want to leave "${ride.title}"?'),
+        content: Text('Are you sure you want to leave "${ride.title}"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
@@ -221,14 +169,11 @@ class _JoinedRideCard extends StatelessWidget {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content:
-                    Text('Left "${ride.title}" — coming soon!')),
+                    content: Text('Left "${ride.title}" — coming soon!')),
               );
             },
-            style:
-            ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child:
-            const Text('Leave', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child: const Text('Leave', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

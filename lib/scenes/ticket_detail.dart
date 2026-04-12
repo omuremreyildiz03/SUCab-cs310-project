@@ -68,7 +68,6 @@ class TicketDetailScreen extends StatelessWidget {
   }
 
   Widget _buildDetails(BuildContext context, Ride ride) {
-    final isOwnRide = ride.driverName == mockData.currentUserName;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Card(
@@ -82,51 +81,10 @@ class TicketDetailScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const Divider(),
               _buildDetailRow('Status', ride.status),
-              _buildDetailRow(
-                  'Available Seats', '${ride.availableSeats} / 4'),
-              _buildDetailRow(
-                  'Pickup Point', ride.pickupPoint ?? 'Not specified'),
-              _buildDetailRow(
-                  'Preference', ride.preference ?? 'None'),
+              _buildDetailRow('Available Seats', '${ride.availableSeats} / 4'),
+              _buildDetailRow('Pickup Point', ride.pickupPoint ?? 'Not specified'),
+              _buildDetailRow('Preference', ride.preference ?? 'None'),
               _buildDetailRow('Ticket ID', ride.ticketId),
-              const Divider(),
-              // Tappable driver row
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Driver',
-                        style: TextStyle(color: Colors.grey)),
-                    GestureDetector(
-                      onTap: isOwnRide
-                          ? null
-                          : () => _openDriverProfile(context, ride.driverName),
-                      child: Row(
-                        children: [
-                          Text(
-                            ride.driverName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isOwnRide
-                                  ? Colors.black
-                                  : const Color(0xFF1E2A44),
-                              decoration: isOwnRide
-                                  ? TextDecoration.none
-                                  : TextDecoration.underline,
-                            ),
-                          ),
-                          if (!isOwnRide) ...[
-                            const SizedBox(width: 4),
-                            const Icon(Icons.open_in_new,
-                                size: 14, color: Color(0xFF1E2A44)),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -176,8 +134,7 @@ class TicketDetailScreen extends StatelessWidget {
                   trailing: isSelf
                       ? null
                       : TextButton(
-                    onPressed: () =>
-                        _openUserProfile(context, userName),
+                    onPressed: () => _openUserProfile(context, userName),
                     child: const Text('View Profile'),
                   ),
                 );
@@ -189,11 +146,6 @@ class TicketDetailScreen extends StatelessWidget {
     );
   }
 
-  void _openDriverProfile(BuildContext context, String driverName) {
-    final user = _findUser(driverName);
-    Navigator.pushNamed(context, '/other_profile', arguments: user);
-  }
-
   void _openUserProfile(BuildContext context, String userName) {
     final user = _findUser(userName);
     Navigator.pushNamed(context, '/other_profile', arguments: user);
@@ -203,7 +155,6 @@ class TicketDetailScreen extends StatelessWidget {
     try {
       return otherUsers.firstWhere((u) => u.name == name);
     } catch (_) {
-      // Return a placeholder if not found in mock data
       return UserProfile(
         name: name,
         suId: '${name.toLowerCase()}@sabanciuniv.edu',
