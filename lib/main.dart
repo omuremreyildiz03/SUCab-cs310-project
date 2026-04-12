@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
       title: 'SUCab',
       initialRoute: '/gate',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/tickets',
       routes: {
         '/tickets': (context) => const TicketsScreen(),
         '/my_rides': (context) => const MyRidesScreen(),
