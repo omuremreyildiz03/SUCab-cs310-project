@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'models/user.dart';
 import 'scenes/login.dart';
 import 'scenes/sign_up.dart';
 import 'scenes/tickets.dart';
 import 'scenes/my_rides.dart';
 import 'scenes/profile.dart';
+import 'scenes/other_profile.dart';
 import 'scenes/notification.dart';
 import 'scenes/created_rides.dart';
 import 'scenes/joined_rides.dart';
@@ -34,6 +36,17 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/sign_up': (context) => const SignUpScreen(),
         '/ticket_detail': (context) => const TicketDetailScreen()
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/other_profile') {
+          final user = settings.arguments as User?;
+          if (user != null) {
+            return MaterialPageRoute(
+              builder: (context) => OtherProfileScreen(user: user),
+            );
+          }
+        }
+        return null;
       },
     );
   }

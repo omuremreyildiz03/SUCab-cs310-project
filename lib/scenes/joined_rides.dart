@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sucab/data/mock_rides.dart';
+import 'package:sucab/data/mock_users.dart';
 import 'package:sucab/models/ride.dart';
 import 'package:sucab/widgets/main_navigation_bar.dart';
 
@@ -58,7 +59,23 @@ class _JoinedRideCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Text('Driver: ${ride.driverName}'),
+            GestureDetector(
+              onTap: () {
+                final user = getUserByName(ride.driverName);
+                Navigator.pushNamed(
+                  context,
+                  '/other_profile',
+                  arguments: user,
+                );
+              },
+              child: Text(
+                'Driver: ${ride.driverName}',
+                style: const TextStyle(
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
             Text('From: ${ride.from}'),
             Text('To: ${ride.to}'),
             Text('Date: ${ride.date}'),
