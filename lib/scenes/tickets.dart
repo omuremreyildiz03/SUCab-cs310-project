@@ -22,6 +22,11 @@ class _TicketsScreenState extends State<TicketsScreen> {
       body: const Center(
         child: Text("This is tickets"),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/new_ticket'),
+        backgroundColor: Colors.black,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       bottomNavigationBar: MainNavigationBar(
         context,
         currentIndex: 0,
