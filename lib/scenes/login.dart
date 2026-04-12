@@ -43,6 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                       hintText: "Enter SU-id name: ",
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                       suffix: IconButton(
                           onPressed: () {
                             _nameController.clear();
@@ -64,6 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                       hintText: "Enter Su-id password: ",
                       border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
                       suffix: IconButton(
                           onPressed: () {
                             _passwordController.clear();
@@ -114,6 +118,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text("Login")
                 ),
+                SizedBox(height: 30),
+                ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/sign_up'),
+                    icon: Icon(Icons.person_add),
+                  label: Text("Create new user")
+                )
               ],
             )
         )
