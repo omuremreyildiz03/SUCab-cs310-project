@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
+import 'scenes/tickets.dart';
+import 'scenes/my_rides.dart';
+import 'scenes/profile.dart';
+import 'scenes/notification.dart';
+import 'scenes/gate.dart';
 
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
-
-  @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Notifications"),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("This is notification")
-          ],
-        ),
+    return MaterialApp(
+      title: 'SUCab',
+      initialRoute: '/tickets',
+      routes: {
+        '/tickets': (context) => const TicketsScreen(),
+        '/my_rides': (context) => const MyRidesScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/notification': (context) => const NotificationScreen(),
+        '/gate': (context) => const GateScreen(),
+      },
     );
   }
 }
