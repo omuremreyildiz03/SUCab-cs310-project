@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Stays on this screen for 3 seconds before moving to Announcements
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/announcements');
+      Navigator.pushReplacementNamed(context, '/notification');
     }
   }
 
