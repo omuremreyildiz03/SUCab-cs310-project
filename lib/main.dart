@@ -11,6 +11,8 @@ import 'scenes/gate.dart';
 import 'scenes/ticket_detail.dart';
 import 'scenes/new_ticket.dart';
 import 'scenes/other_profile.dart';
+import 'scenes/splash_screen.dart';
+import 'scenes/announcements_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,9 +25,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SUCab',
-      initialRoute: '/gate',
+      initialRoute: '/splash',
       debugShowCheckedModeBanner: false,
       routes: {
+        '/splash': (context) => const SplashScreen(), 
+        '/announcements': (context) => const AnnouncementsScreen(),
         '/gate': (context) => const GateScreen(),
         '/tickets': (context) => const TicketsScreen(),
         '/my_rides': (context) => const MyRidesScreen(),
