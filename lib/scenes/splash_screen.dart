@@ -17,8 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void _startNavigation() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
-      // REDIRECTS TO GATE (LOGIN)
-      Navigator.pushReplacementNamed(context, '/gate');
+      Navigator.pushReplacementNamed(context, '/auth');
     }
   }
 
@@ -33,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Icon(Icons.airport_shuttle, size: 100, color: Colors.white),
             SizedBox(height: 20),
             Text(
-              "SUCab",
+              'SUCab',
               style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
@@ -42,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             Text(
-              "Ride Sharing for Sabancı",
+              'Ride Sharing for Sabancı',
               style: TextStyle(fontSize: 16, color: Colors.white70),
             ),
             SizedBox(height: 40),

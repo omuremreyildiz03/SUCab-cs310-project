@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sucab/data/mock_users.dart';
-import 'package:sucab/data/mock_rides.dart' as mockData;
-import 'package:sucab/models/ride.dart';
-import 'package:sucab/models/user.dart';
+import 'package:provider/provider.dart';
+import '../models/ride.dart';
+import '../providers/auth_provider.dart';
+import '../providers/ride_provider.dart';
+import 'style_utils.dart';
 
 class TicketDetailScreen extends StatelessWidget {
   const TicketDetailScreen({super.key});
@@ -10,163 +11,153 @@ class TicketDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ride = ModalRoute.of(context)!.settings.arguments as Ride;
+    final authProvider = context.watch<AuthProvider>();
+    final rideProvider = context.watch<RideProvider>();
+    final uid = authProvider.firebaseUser?.uid ?? '';
+    final isDriver = ride.driverUid == uid;
+    final hasJoined = ride.joinedUsers.contains(uid);
+
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Ticket Detail'),
-        backgroundColor: const Color(0xFF1E2A44),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: Text('Ride Details', style: AppTextStyles.heading),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          if (isDriver)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Delete Ride'),
+                    content: const Text('Are you sure you want to delete this ride?'),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel')),
+                      TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Delete',
+                              style: TextStyle(color: Colors.red))),
+                    ],
+                  ),
+                );
+                if (confirm == true && context.mounted) {
+                  await rideProvider.deleteRide(ride.id);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+        ],
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(ride),
-            _buildDetails(context, ride),
-            _buildCompanions(context, ride),
+            Text(ride.title,
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(ride.ticketId,
+                style: TextStyle(color: AppColors.secondaryText, fontSize: 13)),
+            const SizedBox(height: 24),
+            _DetailRow(icon: Icons.circle, label: 'From', value: ride.from),
+            _DetailRow(icon: Icons.location_on, label: 'To', value: ride.to),
+            _DetailRow(icon: Icons.calendar_today, label: 'Date', value: ride.date),
+            _DetailRow(icon: Icons.access_time, label: 'Time', value: ride.time),
+            _DetailRow(icon: Icons.person, label: 'Driver', value: ride.driverName),
+            _DetailRow(
+                icon: Icons.event_seat,
+                label: 'Available Seats',
+                value: '${ride.availableSeats}'),
+            if (ride.pickupPoint != null)
+              _DetailRow(
+                  icon: Icons.pin_drop,
+                  label: 'Pickup Point',
+                  value: ride.pickupPoint!),
+            if (ride.preference != null)
+              _DetailRow(
+                  icon: Icons.info_outline,
+                  label: 'Preferences',
+                  value: ride.preference!),
+            const SizedBox(height: 32),
+            if (!isDriver)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: rideProvider.isLoading
+                      ? null
+                      : () async {
+                          if (hasJoined) {
+                            await rideProvider.leaveRide(ride.id, uid);
+                          } else {
+                            if (ride.availableSeats <= 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('No seats available.')),
+                              );
+                              return;
+                            }
+                            await rideProvider.joinRide(ride.id, uid);
+                          }
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        hasJoined ? Colors.orange : AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(hasJoined ? 'Leave' : 'Join',
+                      style: const TextStyle(fontSize: 16)),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildHeader(Ride ride) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      color: const Color(0xFF1E2A44),
-      child: Column(
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _DetailRow(
+      {required this.icon, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${ride.from}  →  ${ride.to}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${ride.date}  ·  ${ride.time}',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.green,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              ride.status,
-              style: const TextStyle(color: Colors.white),
-            ),
+          Icon(icon, size: 18, color: AppColors.primary),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: TextStyle(
+                      color: AppColors.secondaryText, fontSize: 12)),
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600)),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  Widget _buildDetails(BuildContext context, Ride ride) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('DETAILS',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const Divider(),
-              _buildDetailRow('Status', ride.status),
-              _buildDetailRow('Available Seats', '${ride.availableSeats} / 4'),
-              _buildDetailRow('Pickup Point', ride.pickupPoint ?? 'Not specified'),
-              _buildDetailRow('Preference', ride.preference ?? 'None'),
-              _buildDetailRow('Ticket ID', ride.ticketId),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompanions(BuildContext context, Ride ride) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('COMPANIONS',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const Divider(),
-              ...ride.joinedUsers.map((userName) {
-                final isSelf = userName == mockData.currentUserName;
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: const Color(0xFF1E2A44),
-                    child: Text(
-                      userName[0],
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  title: Text(userName),
-                  subtitle: isSelf ? const Text('You') : null,
-                  trailing: isSelf
-                      ? null
-                      : TextButton(
-                    onPressed: () => _openUserProfile(context, userName),
-                    child: const Text('View Profile'),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _openUserProfile(BuildContext context, String userName) {
-    final user = _findUser(userName);
-    Navigator.pushNamed(context, '/other_profile', arguments: user);
-  }
-
-  UserProfile _findUser(String name) {
-    try {
-      return otherUsers.firstWhere((u) => u.name == name);
-    } catch (_) {
-      return UserProfile(
-        name: name,
-        suId: '${name.toLowerCase()}@sabanciuniv.edu',
-        faculty: 'Sabanci University',
-        year: 'Unknown',
-        rating: 0.0,
-        totalRides: 0,
-        createdRides: 0,
-        joinedRides: 0,
-        bio: '',
-        avatarInitials: name[0],
-      );
-    }
   }
 }

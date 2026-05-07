@@ -10,7 +10,7 @@ class AuthProvider extends ChangeNotifier {
 
   User? _firebaseUser;
   UserProfile? _userProfile;
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _errorMessage;
 
   User? get firebaseUser => _firebaseUser;
@@ -30,6 +30,7 @@ class AuthProvider extends ChangeNotifier {
     } else {
       _userProfile = null;
     }
+    _isLoading = false;
     notifyListeners();
   }
 

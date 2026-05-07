@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/ride_provider.dart';
+import 'style_utils.dart';
 
 class NewTicketScreen extends StatefulWidget {
   const NewTicketScreen({super.key});
@@ -8,219 +12,143 @@ class NewTicketScreen extends StatefulWidget {
 }
 
 class _NewTicketScreenState extends State<NewTicketScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
   final _fromController = TextEditingController();
   final _toController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-  TimeOfDay _selectedTime = TimeOfDay.now();
-  final Set<String> _selectedPrefs = {};
-
-  static const List<String> _preferences = [
-    'Female only',
-    'No smoking',
-    'Quiet ride',
-  ];
+  final _dateController = TextEditingController();
+  final _timeController = TextEditingController();
+  final _pickupController = TextEditingController();
+  final _preferenceController = TextEditingController();
+  int _seats = 1;
 
   @override
   void dispose() {
+    _titleController.dispose();
     _fromController.dispose();
     _toController.dispose();
+    _dateController.dispose();
+    _timeController.dispose();
+    _pickupController.dispose();
+    _preferenceController.dispose();
     super.dispose();
   }
 
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+  Future<void> _submit() async {
+    final title = _titleController.text.trim();
+    final from = _fromController.text.trim();
+    final to = _toController.text.trim();
+    final date = _dateController.text.trim();
+    final time = _timeController.text.trim();
 
-  String _formatTime(TimeOfDay t) =>
-      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 90)),
-    );
-    if (picked != null) setState(() => _selectedDate = picked);
-  }
-
-  Future<void> _pickTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (picked != null) setState(() => _selectedTime = picked);
-  }
-
-  void _onPublish() {
-    if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Ride Published!'),
-          content: Text(
-            'Your ride from ${_fromController.text} to ${_toController.text} '
-                'on ${_formatDate(_selectedDate)} at ${_formatTime(_selectedTime)} '
-                'has been published.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
+    if (title.isEmpty || from.isEmpty || to.isEmpty || date.isEmpty || time.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields.')),
       );
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final rideProvider = context.read<RideProvider>();
+    final user = authProvider.userProfile;
+
+    if (user == null) return;
+
+    final success = await rideProvider.createRide(
+      title: title,
+      from: from,
+      to: to,
+      date: date,
+      time: time,
+      availableSeats: _seats,
+      driverName: user.name,
+      driverUid: user.uid,
+      preference: _preferenceController.text.trim().isEmpty
+          ? null
+          : _preferenceController.text.trim(),
+      pickupPoint: _pickupController.text.trim().isEmpty
+          ? null
+          : _pickupController.text.trim(),
+    );
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ride created successfully!')),
+      );
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final rideProvider = context.watch<RideProvider>();
+
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('New Ticket'),
-        backgroundColor: const Color(0xFF1E2A44),
-        foregroundColor: Colors.white,
-      ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildRouteSection(),
-              const SizedBox(height: 16),
-              _buildDateTimeSection(),
-              const SizedBox(height: 16),
-              _buildPreferencesSection(),
-              const SizedBox(height: 24),
-              _buildPublishButton(),
-            ],
-          ),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: Text('New Ride', style: AppTextStyles.heading),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-    );
-  }
-
-  Widget _buildRouteSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('ROUTE',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Colors.grey)),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _fromController,
-              decoration: const InputDecoration(
-                hintText: 'From — e.g. Kadıköy',
-                prefixIcon: Icon(Icons.circle, color: Colors.green, size: 14),
-                border: UnderlineInputBorder(),
-              ),
-              validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Please enter departure' : null,
-            ),
+            _buildField(_titleController, 'Title *', 'Ride title'),
+            _buildField(_fromController, 'From *', 'Departure point'),
+            _buildField(_toController, 'To *', 'Destination'),
+            _buildField(_dateController, 'Date *', 'e.g. May 10, 2026'),
+            _buildField(_timeController, 'Time *', 'e.g. 08:30'),
+            _buildField(_pickupController, 'Pickup Point', 'Optional'),
+            _buildField(_preferenceController, 'Preferences', 'e.g. No smoking'),
+            const SizedBox(height: 16),
+            const Text('Available Seats for Passengers',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            const SizedBox(height: 4),
+            Text('(You are the driver — max 3 passengers)',
+                style: TextStyle(color: AppColors.secondaryText, fontSize: 12)),
             const SizedBox(height: 8),
-            TextFormField(
-              controller: _toController,
-              decoration: const InputDecoration(
-                hintText: 'To — e.g. Sabiha Gökçen',
-                prefixIcon: Icon(Icons.circle, color: Colors.red, size: 14),
-                border: UnderlineInputBorder(),
-              ),
-              validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Please enter destination' : null,
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () =>
+                      setState(() => _seats = (_seats - 1).clamp(1, 3)),
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                Text('$_seats',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w700)),
+                IconButton(
+                  onPressed: () =>
+                      setState(() => _seats = (_seats + 1).clamp(1, 3)),
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateTimeSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('DATE',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: _pickDate,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _formatDate(_selectedDate),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const Icon(Icons.calendar_today, size: 16),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('TIME',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: _pickTime,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _formatTime(_selectedTime),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const Icon(Icons.schedule, size: 16),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: rideProvider.isLoading ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: rideProvider.isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Text('Create', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -229,55 +157,31 @@ class _NewTicketScreenState extends State<NewTicketScreen> {
     );
   }
 
-  Widget _buildPreferencesSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('PREFERENCES',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Colors.grey)),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              children: _preferences.map((pref) {
-                final isSelected = _selectedPrefs.contains(pref);
-                return FilterChip(
-                  label: Text(pref),
-                  selected: isSelected,
-                  onSelected: (val) => setState(() {
-                    val ? _selectedPrefs.add(pref) : _selectedPrefs.remove(pref);
-                  }),
-                );
-              }).toList(),
+  Widget _buildField(
+      TextEditingController controller, String label, String hint) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hint,
+              filled: true,
+              fillColor: AppColors.cardBackground,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPublishButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: _onPublish,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1E2A44),
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
           ),
-        ),
-        child: const Text(
-          'Publish ride',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        ],
       ),
     );
   }

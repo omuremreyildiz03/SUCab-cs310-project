@@ -34,21 +34,21 @@ class AuthService {
   String getErrorMessage(String code) {
     switch (code) {
       case 'user-not-found':
-        return 'Bu email ile kayıtlı kullanıcı bulunamadı.';
+        return 'No user found with this email.';
       case 'wrong-password':
-        return 'Hatalı şifre. Lütfen tekrar deneyin.';
+        return 'Incorrect password. Please try again.';
       case 'email-already-in-use':
-        return 'Bu email zaten kullanımda.';
+        return 'This email is already in use.';
       case 'weak-password':
-        return 'Şifre en az 6 karakter olmalıdır.';
+        return 'Password must be at least 6 characters.';
       case 'invalid-email':
-        return 'Geçersiz email adresi.';
+        return 'Invalid email address.';
       case 'network-request-failed':
-        return 'Ağ hatası. İnternet bağlantınızı kontrol edin.';
+        return 'Network error. Please check your connection.';
       case 'too-many-requests':
-        return 'Çok fazla deneme. Lütfen daha sonra tekrar deneyin.';
+        return 'Too many attempts. Please try again later.';
       default:
-        return 'Bir hata oluştu. Lütfen tekrar deneyin.';
+        return 'An error occurred. Please try again.';
     }
   }
 }

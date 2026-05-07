@@ -5,11 +5,8 @@ import '../models/user.dart';
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // ─── Collections ───────────────────────────────────────────────
   CollectionReference get _rides => _db.collection('rides');
   CollectionReference get _users => _db.collection('users');
-
-  // ─── USER OPERATIONS ───────────────────────────────────────────
 
   Future<void> createUserProfile(UserProfile user) async {
     await _users.doc(user.uid).set(user.toMap());
@@ -17,9 +14,7 @@ class FirestoreService {
 
   Future<UserProfile?> getUserProfile(String uid) async {
     final doc = await _users.doc(uid).get();
-    if (doc.exists) {
-      return UserProfile.fromFirestore(doc);
-    }
+    if (doc.exists) return UserProfile.fromFirestore(doc);
     return null;
   }
 
@@ -34,8 +29,6 @@ class FirestoreService {
     await _users.doc(uid).update(data);
   }
 
-  // ─── RIDE OPERATIONS ───────────────────────────────────────────
-
   Future<void> createRide(Ride ride) async {
     await _rides.doc(ride.id).set(ride.toMap());
   }
@@ -48,7 +41,6 @@ class FirestoreService {
     await _rides.doc(rideId).delete();
   }
 
-  // All public rides (tickets screen)
   Stream<List<Ride>> allRidesStream() {
     return _rides
         .orderBy('createdAt', descending: true)
@@ -56,20 +48,16 @@ class FirestoreService {
         .map((snap) => snap.docs.map((d) => Ride.fromFirestore(d)).toList());
   }
 
-  // Rides created by a specific user
   Stream<List<Ride>> createdRidesStream(String uid) {
     return _rides
         .where('driverUid', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snap) => snap.docs.map((d) => Ride.fromFirestore(d)).toList());
   }
 
-  // Rides joined by a specific user
   Stream<List<Ride>> joinedRidesStream(String uid) {
     return _rides
         .where('joinedUsers', arrayContains: uid)
-        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snap) => snap.docs.map((d) => Ride.fromFirestore(d)).toList());
   }
